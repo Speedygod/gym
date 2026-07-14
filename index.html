@@ -1,400 +1,976 @@
-<!DOCTYPE html>
+]<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IRON ZONE | Operational Terminal</title>
+    <title>IRON ZONE | Member Authentication Portal</title>
     <style>
+        /* ==========================================
+           1. CORE VARIABLES & MASTER RESETS
+           ========================================== */
         :root {
-            --bg-dark: #06090f;
-            --bg-card: #121824;
-            --admin-glow: #00ff88;
+            --bg-dark: #0b0f19;
+            --bg-card: #151c2c;
             --accent: #ff4757;
+            --accent-hover: #ff6b81;
             --text-main: #ffffff;
-            --text-muted: #8b9bb4;
+            --text-muted: #a4b0be;
+            --profile-glow: #00ff88;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background-color: var(--bg-dark); font-family: 'Segoe UI', sans-serif; color: var(--text-main); line-height: 1.6; }
-        .container { max-width: 1200px; margin: 0 auto; padding: 40px 20px; }
-
-        header { background-color: var(--bg-card); padding: 20px; border-bottom: 1px solid rgba(56, 239, 125, 0.15); }
-        .navbar { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; }
-        .logo { font-size: 1.6rem; font-weight: 800; text-transform: uppercase; color: #fff; text-decoration: none; }
-        .logo span { color: var(--admin-glow); }
-
-        .btn-logout { background: transparent; border: 1px solid var(--admin-glow); color: var(--admin-glow); padding: 8px 20px; border-radius: 4px; font-weight: bold; cursor: pointer; text-transform: uppercase; font-size: 0.85rem; }
-        .btn-logout:hover { background: var(--admin-glow); color: #06090f; }
-
-        .analytics-strip { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 40px; }
-        .analytics-card { background-color: var(--bg-card); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 8px; padding: 25px; }
-        .analytics-card h4 { text-transform: uppercase; font-size: 0.85rem; color: var(--text-muted); }
-        .analytics-card .counter-number { font-size: 2.5rem; font-weight: 800; color: #fff; margin-top: 5px; }
-        .analytics-card .counter-number.glow { color: var(--admin-glow); }
-
-        .admin-workspace { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 40px; align-items: start; }
-        @media (min-width: 900px) {
-            .admin-workspace { grid-template-columns: 2fr 1fr; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            scroll-behavior: smooth;
         }
-        .panel-card { background: var(--bg-card); border-radius: 8px; padding: 30px; border: 1px solid rgba(255, 255, 255, 0.05); margin-bottom: 30px; }
-        .panel-card h3 { text-transform: uppercase; letter-spacing: 1px; font-size: 1.2rem; margin-bottom: 20px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); padding-bottom: 10px; color: var(--admin-glow); }
 
-        .table-wrap { overflow-x: auto; }
-        .data-table { width: 100%; border-collapse: collapse; text-align: left; }
-        .data-table th { background: rgba(0,0,0,0.2); padding: 12px; font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); }
-        .data-table td { padding: 15px 12px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.95rem; vertical-align: middle; }
-        .data-table tr.clickable-row { cursor: pointer; }
-        .data-table tr.clickable-row:hover td { background-color: rgba(255, 255, 255, 0.02); }
+        body {
+            background-color: var(--bg-dark);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--text-main);
+            line-height: 1.6;
+        }
 
-        /* Thumb styles for lists */
-        .table-avatar { width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--admin-glow); object-fit: cover; }
-        .flex-user-cell { display: flex; align-items: center; gap: 15px; }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 80px 20px;
+        }
 
-        .badge { display: inline-block; padding: 3px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; }
-        .badge.active { background: rgba(56, 239, 125, 0.15); color: var(--admin-glow); }
-        .badge.expired { background: rgba(255, 71, 87, 0.15); color: var(--accent); }
+        .section-header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
 
-        .btn-delete-action { background: transparent; border: 1px solid rgba(255, 71, 87, 0.3); color: var(--accent); padding: 4px 10px; border-radius: 4px; font-size: 0.8rem; cursor: pointer; font-weight: bold; text-transform: uppercase; }
-        .btn-delete-action:hover { background: var(--accent); color: #fff; }
+        .section-header h2 {
+            font-size: 2.5rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--accent);
+            margin-bottom: 10px;
+        }
 
-        .form-group { margin-bottom: 20px; }
-        .form-group label { display: block; margin-bottom: 6px; font-size: 0.85rem; text-transform: uppercase; color: var(--text-muted); }
-        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 12px; background: var(--bg-dark); border: 1px solid rgba(255, 255, 255, 0.1); color: #fff; border-radius: 4px; font-size: 1rem; }
-        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: var(--admin-glow); }
+        .section-header p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        /* ==========================================
+           2. AUTH GATEWAY VIEW SCREEN (FORCED LOGIN)
+           ========================================== */
+        .auth-gateway {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100vh;
+            background: linear-gradient(rgba(11, 15, 25, 0.85), rgba(11, 15, 25, 0.95)), 
+                        url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=1920') no-repeat center center/cover;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            padding: 20px;
+            transition: opacity 0.4s ease, visibility 0.4s;
+        }
+
+        .auth-gateway.authenticated {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .login-card {
+            background-color: var(--bg-card);
+            width: 100%;
+            max-width: 440px;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.6);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .login-card-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .login-card h2 {
+            font-size: 2rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #fff;
+            margin-bottom: 5px;
+        }
+
+        .login-card h2 span { color: var(--accent); }
+        .login-card p { color: var(--text-muted); font-size: 0.95rem; }
+
+        .auth-panel { display: none; }
+        .auth-panel.active-panel { display: block; }
+
+        .auth-helper-links {
+            margin-top: 15px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+        }
+
+        .auth-link {
+            color: var(--accent);
+            cursor: pointer;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .auth-link:hover { text-decoration: underline; }
+
+        /* ==========================================
+           3. MAIN APP WRAPPER INTERFACE SWITCH
+           ========================================== */
+        #main-app-interface {
+            opacity: 0;
+            display: none;
+            transition: opacity 0.5s ease;
+        }
+
+        #main-app-interface.visible {
+            display: block;
+            opacity: 1;
+        }
+
+        /* ==========================================
+           4. NAVIGATION BAR WITH MENU DROPDOWN
+           ========================================== */
+        header {
+            background-color: rgba(11, 15, 25, 0.95);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .navbar {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            position: relative;
+        }
+
+        .logo { font-size: 1.8rem; font-weight: 800; letter-spacing: 1px; color: #fff; text-decoration: none; }
+        .logo span { color: var(--accent); }
         
-        .btn-post { background: var(--admin-glow); color: #06090f; border: none; width: 100%; padding: 14px; border-radius: 4px; font-weight: bold; text-transform: uppercase; cursor: pointer; font-size: 1rem; }
-        .btn-post:hover { background: #2cd66d; }
+        .menu-toggle {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            cursor: pointer;
+            background: transparent;
+            border: none;
+        }
 
-        /* DETAIL MODAL */
-        .detail-modal-mask { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(6, 9, 15, 0.85); z-index: 5000; align-items: center; justify-content: center; }
-        .detail-window-card { background-color: var(--bg-card); border: 1px solid rgba(255,255,255,0.08); width: 100%; max-width: 460px; padding: 40px; border-radius: 8px; position: relative; }
-        .detail-close-btn { position: absolute; top: 20px; right: 25px; color: var(--text-muted); font-size: 30px; cursor: pointer; font-weight: bold; }
-        .detail-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
-        .detail-row .label-title { text-transform: uppercase; font-size: 0.85rem; color: var(--text-muted); font-weight: bold; }
-        .detail-row .val-data { font-weight: 600; }
+        .menu-toggle span {
+            width: 25px;
+            height: 3px;
+            background-color: var(--text-main);
+            transition: 0.3s ease;
+            border-radius: 2px;
+        }
+
+        .nav-container { display: flex; align-items: center; gap: 20px; }
+        .nav-container .nav-links { display: flex; list-style: none; gap: 25px; align-items: center; }
+        
+        .nav-links a {
+            color: var(--text-main);
+            text-decoration: none;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover { color: var(--accent); }
+
+        .btn-logout {
+            background: transparent;
+            border: 1px solid rgba(255, 71, 87, 0.4);
+            color: var(--accent);
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            transition: all 0.3s;
+        }
+
+        .btn-logout:hover {
+            background-color: var(--accent);
+            color: #fff;
+        }
+
+        .cta-nav {
+            background-color: var(--accent);
+            padding: 8px 20px;
+            border-radius: 4px;
+            transition: background 0.3s !important;
+            color: #fff !important;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .cta-nav:hover { background-color: var(--accent-hover); }
+
+        /* ==========================================
+           5. USER PROFILE WIDGET WITH LIVE EDITOR
+           ========================================== */
+        .user-profile-section {
+            background-color: var(--bg-card);
+            border-radius: 8px;
+            padding: 30px;
+            margin-bottom: 40px;
+            border: 1px solid rgba(0, 255, 136, 0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        .profile-display-row {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+            width: 100%;
+        }
+
+        .profile-avatar-box {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 3px solid var(--profile-glow);
+            background-color: #0b0f19;
+            flex-shrink: 0;
+        }
+
+        .profile-avatar-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .profile-details-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            width: 100%;
+        }
+
+        .profile-meta-item h5 {
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            letter-spacing: 0.5px;
+            margin-bottom: 2px;
+        }
+
+        .profile-meta-item p {
+            font-size: 1.05rem;
+            font-weight: 600;
+        }
+
+        .profile-meta-item .userid-tag {
+            color: var(--profile-glow);
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        .profile-edit-controls {
+            display: flex;
+            justify-content: flex-end;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            padding-top: 15px;
+            width: 100%;
+        }
+
+        .btn-edit-profile {
+            background: transparent;
+            border: 1px solid var(--profile-glow);
+            color: var(--profile-glow);
+            padding: 8px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            transition: all 0.3s;
+        }
+
+        .btn-edit-profile:hover {
+            background: var(--profile-glow);
+            color: #0b0f19;
+        }
+
+        .profile-edit-form-box {
+            display: none;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            background: rgba(0,0,0,0.2);
+            padding: 20px;
+            border-radius: 6px;
+            border: 1px dashed rgba(255,255,255,0.1);
+        }
+
+        /* ==========================================
+           6. HERO & SYSTEM DASHBOARD CARDS
+           ========================================== */
+        .hero {
+            height: 50vh;
+            background: linear-gradient(rgba(11, 15, 25, 0.7), rgba(11, 15, 25, 0.9)), 
+                        url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=1920') no-repeat center center/cover;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 0 20px;
+        }
+
+        .hero-content h1 { font-size: 3.5rem; text-transform: uppercase; letter-spacing: 3px; margin-bottom: 20px; font-weight: 900; }
+        .hero-content p { font-size: 1.2rem; color: var(--text-muted); margin-bottom: 30px; max-width: 600px; margin-left: auto; margin-right: auto; }
+
+        .btn-large {
+            background-color: var(--accent);
+            color: #fff;
+            text-decoration: none;
+            padding: 16px 36px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            border-radius: 4px;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 15px rgba(255, 71, 87, 0.4);
+            display: inline-block;
+        }
+
+        .programs-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 25px; }
+        .program-card { background-color: var(--bg-card); border-radius: 8px; padding: 30px; text-align: center; border: 1px solid rgba(255, 255, 255, 0.02); }
+        .program-icon { font-size: 2.5rem; margin-bottom: 15px; }
+        .program-card h3 { margin-bottom: 15px; text-transform: uppercase; }
+        .program-card p { color: var(--text-muted); font-size: 0.95rem; }
+
+        .tasks-board-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 20px; }
+        .task-view-card { background: #1b2436; border-left: 4px solid var(--accent); border-radius: 6px; padding: 20px; }
+        .task-view-card h4 { text-transform: uppercase; font-size: 1.1rem; color: #fff; margin-bottom: 5px; }
+        .task-view-card .task-assignee { font-size: 0.85rem; color: var(--accent); font-weight: bold; margin-bottom: 10px; text-transform: uppercase; }
+        .task-view-card p { color: var(--text-muted); font-size: 0.95rem; }
+
+        /* ==========================================
+           7. TRAINER PROFILES & SELECTION ACTIONS
+           ========================================== */
+        .trainers-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 30px; }
+        .trainer-card { background-color: var(--bg-card); border-radius: 8px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.3); border: 2px solid transparent; transition: border 0.3s; }
+        .trainer-card.selected-personal-coach { border-color: var(--profile-glow); }
+        .trainer-img { width: 100%; height: 320px; object-fit: cover; background: #000; }
+        .trainer-info { padding: 20px; text-align: center; }
+        .trainer-info h3 { text-transform: uppercase; margin-bottom: 5px; }
+        .trainer-info span { color: var(--accent); font-weight: 600; font-size: 0.9rem; text-transform: uppercase; display: block; margin-bottom: 15px; }
+        
+        .trainer-card-actions { display: flex; flex-direction: column; gap: 8px; padding: 0 10px 15px; }
+        .btn-trainer-action { width: 100%; padding: 8px; border-radius: 4px; font-weight: bold; text-transform: uppercase; font-size: 0.8rem; cursor: pointer; transition: all 0.2s; }
+        .btn-trainer-view { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff; }
+        .btn-trainer-view:hover { background: rgba(255,255,255,0.15); }
+        .btn-trainer-select { background: transparent; border: 1px solid var(--profile-glow); color: var(--profile-glow); }
+        .btn-trainer-select:hover { background: var(--profile-glow); color: #0b0f19; }
+        .btn-trainer-delete { background: transparent; border: 1px solid var(--accent); color: var(--accent); }
+        .btn-trainer-delete:hover { background: var(--accent); color: #fff; }
+
+        /* Trainer Info Sheet Popup Modal */
+        .trainer-modal-mask { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(6, 9, 15, 0.85); z-index: 10005; align-items: center; justify-content: center; }
+        .trainer-window-card { background-color: var(--bg-card); border: 1px solid rgba(255,255,255,0.08); width: 100%; max-width: 440px; padding: 40px; border-radius: 8px; position: relative; text-align: center; }
+        .trainer-detail-avatar { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 3px solid var(--profile-glow); margin-bottom: 15px; }
+
+        .pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 30px; }
+        .price-card { background-color: var(--bg-card); border-radius: 8px; padding: 40px 30px; text-align: center; border: 1px solid rgba(255, 255, 255, 0.02); }
+        .price-card.featured { border: 2px solid var(--accent); transform: scale(1.03); }
+        .price-amount { font-size: 3rem; font-weight: 800; color: #fff; margin-bottom: 20px; }
+        .price-features { list-style: none; margin-bottom: 30px; text-align: left; }
+        .price-features li { padding: 10px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.05); font-size: 0.95rem; }
+        .price-features li::before { content: "✓ "; color: var(--accent); margin-right: 5px; font-weight: bold; }
+        .btn-select { background-color: transparent; border: 2px solid var(--text-main); color: #fff; width: 100%; padding: 12px; border-radius: 4px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
+        .price-card.featured .btn-select, .btn-select:hover { background-color: var(--accent); border-color: var(--accent); }
+
+        .gym-gallery { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+        .gallery-item { position: relative; border-radius: 8px; overflow: hidden; height: 240px; cursor: pointer; }
+        .gallery-item img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; }
+        .gallery-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(transparent, rgba(11, 15, 25, 0.9)); display: flex; align-items: flex-end; padding: 20px; opacity: 0; transition: opacity 0.3s ease; }
+        .gallery-overlay span { font-weight: bold; text-transform: uppercase; transform: translateY(20px); transition: transform 0.3s ease; }
+        .gallery-item:hover img { transform: scale(1.1); }
+        .gallery-item:hover .gallery-overlay { opacity: 1; }
+
+        .testimonials-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; }
+        .testimonial-card { background-color: var(--bg-card); padding: 30px; border-radius: 8px; }
+        .stars { color: #f1c40f; margin-bottom: 15px; }
+        .testimonial-card p { font-style: italic; color: #dcdde1; margin-bottom: 20px; }
+        .member-info h4 { text-transform: uppercase; color: var(--accent); }
+
+        .contact-wrapper { display: grid; grid-template-columns: 1fr 1fr; gap: 50px; background-color: var(--bg-card); border-radius: 8px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.4); }
+        .contact-info { padding: 50px; background: linear-gradient(rgba(255, 71, 87, 0.9), rgba(255, 71, 87, 0.75)), url('https://images.unsplash.com/photo-1517838277536-f5f99be501cd?q=80&w=600') no-repeat center center/cover; display: flex; flex-direction: column; justify-content: center; }
+        .contact-info h3 { font-size: 2rem; text-transform: uppercase; margin-bottom: 20px; }
+        .info-item { margin-bottom: 20px; font-size: 1.1rem; }
+        .booking-form-pane { padding: 50px; }
+
+        .form-group { margin-bottom: 18px; position: relative; }
+        .form-group label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 0.9rem; text-transform: uppercase; }
+        .form-group input, .form-group select { width: 100%; padding: 12px; background-color: var(--bg-dark); border: 1px solid rgba(255, 255, 255, 0.1); color: #fff; border-radius: 4px; font-size: 1rem; }
+        .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--accent); }
+        .password-toggle { position: absolute; right: 12px; top: 38px; cursor: pointer; color: var(--text-muted); font-size: 0.85rem; user-select: none; }
+        
+        .btn-submit { background-color: var(--accent); color: #fff; border: none; width: 100%; padding: 14px; border-radius: 4px; font-weight: bold; font-size: 1rem; text-transform: uppercase; cursor: pointer; transition: background 0.3s; }
+        .btn-submit:hover { background-color: var(--accent-hover); }
+        .error-msg { color: #ff4757; font-size: 0.85rem; margin-top: 5px; display: none; }
+
+        .modal-backdrop { display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(11, 15, 25, 0.95); align-items: center; justify-content: center; flex-direction: column; }
+        .lightbox-content { max-width: 85%; max-height: 80vh; border-radius: 4px; }
+        .modal-close-btn { position: absolute; top: 20px; right: 25px; color: var(--text-muted); font-size: 35px; font-weight: bold; cursor: pointer; }
+        footer { background-color: #06090f; text-align: center; padding: 30px 20px; color: var(--text-muted); font-size: 0.9rem; border-top: 1px solid rgba(255, 255, 255, 0.05); }
+
+        @media (max-width: 850px) {
+            .menu-toggle { display: flex; }
+            .nav-container { display: none; flex-direction: column; position: absolute; top: 100%; left: 0; width: 100%; background-color: var(--bg-card); padding: 30px; box-shadow: 0 10px 15px rgba(0,0,0,0.5); border-bottom: 2px solid var(--accent); gap: 20px; z-index: 999; }
+            .nav-container.open-bar { display: flex; }
+            .nav-container .nav-links { flex-direction: column; width: 100%; gap: 15px; }
+            .btn-logout, .cta-nav { width: 100%; text-align: center; padding: 12px; }
+            .profile-display-row { flex-direction: column; text-align: center; }
+        }
     </style>
 </head>
 <body>
 
-    <header>
-        <nav class="navbar">
-            <a href="#" class="logo">IRON<span>ZONE</span></a>
-            <button class="btn-logout" id="logoutBtn">Lock Terminal</button>
-        </nav>
-    </header>
+    <!-- AUTH GATEWAY SYSTEM WRAPPER -->
+    <div id="authGateway" class="auth-gateway">
+        <div class="login-card">
+            
+            <!-- PANEL A: LOGIN TERMINAL VIEW -->
+            <div id="loginPanel" class="auth-panel active-panel">
+                <div class="login-card-header">
+                    <h2>DIAGON<span>ZONE</span></h2>
+                    <p>Sign in to your member profile tracking feed</p>
+                </div>
+                <form id="loginForm" novalidate>
+                    <div class="form-group">
+                        <label for="loginEmail">Email Address</label>
+                        <input type="email" id="loginEmail" placeholder="member@diagonzone.com">
+                        <div class="error-msg" id="loginEmailError">Please enter a valid email format.</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="loginPassword">Password</label>
+                        <input type="password" id="loginPassword" placeholder="••••••••">
+                        <span class="password-toggle" id="togglePassword">SHOW</span>
+                        <div class="error-msg" id="loginPasswordError">Password field required.</div>
+                    </div>
+                    <button type="submit" class="btn-submit" style="width: 100%;">Secure Sign In</button>
+                </form>
+                <div class="auth-helper-links">
+                    <span class="auth-link" id="goToForgotBtn">Forgot Password?</span>
+                    <span class="auth-link" id="goToRegisterBtn">New Member Registration</span>
+                </div>
+            </div>
 
-    <main class="container">
-        <div class="analytics-strip">
-            <div class="analytics-card"><h4>Active Subscriptions</h4><div class="counter-number glow" id="activePlansCount">0</div></div>
-            <div class="analytics-card"><h4>Registered Profiles</h4><div class="counter-number" id="totalCustomersCount">0</div></div>
-            <div class="analytics-card"><h4>Active Staff Members</h4><div class="counter-number" id="totalStaffCount">0</div></div>
-        </div>
+            <!-- PANEL B: UNIQUE EMAIL REGISTRATION -->
+            <div id="registerPanel" class="auth-panel">
+                <div class="login-card-header">
+                    <h2>REGISTER<span>NOW</span></h2>
+                    <p>Establish your profile file details</p>
+                </div>
+                <form id="registerForm" novalidate>
+                    <div class="form-group">
+                        <label for="regUserId">Desired User ID</label>
+                        <input type="text" id="regUserId" placeholder="e.g., iron_athlete7">
+                        <div class="error-msg" id="regUserIdError">User ID field required.</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="regName">Full Name</label>
+                        <input type="text" id="regName" placeholder="John Doe">
+                        <div class="error-msg" id="regNameError">Name required.</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="regEmail">Unique Email Address</label>
+                        <input type="email" id="regEmail" placeholder="yourname@domain.com">
+                        <div class="error-msg" id="regEmailError">This email target coordinate is already taken.</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="regImg">Profile Image URL</label>
+                        <input type="url" id="regImg" placeholder="https://images.unsplash.com/...">
+                    </div>
+                    <div class="form-group">
+                        <label for="regAddress">Physical Address</label>
+                        <input type="text" id="regAddress" placeholder="City, Country">
+                    </div>
+                    <div class="form-group">
+                        <label for="regPassword">Secure Password</label>
+                        <input type="password" id="regPassword" placeholder="••••••••">
+                        <div class="error-msg" id="regPasswordError">Must be at least 6 characters.</div>
+                    </div>
+                    <button type="submit" class="btn-submit" style="width: 100%; background-color:#218c74;">Create Account</button>
+                </form>
+                <div class="auth-helper-links" style="justify-content: center;">
+                    <span class="auth-link" id="backToLoginFromReg">Already registered? Log In</span>
+                </div>
+            </div>
 
-        <div class="admin-workspace">
-            <div class="admin-data-column">
+            <!-- PANEL C: FORGOT PASSWORD MODULE -->
+            <div id="forgotPanel" class="auth-panel">
+                <div class="login-card-header">
+                    <h2>RECOVER<span>PASS</span></h2>
+                    <p>Enter your email to request a secure password shift token link</p>
+                </div>
+                <form id="forgotForm" novalidate>
+                    <div class="form-group">
+                        <label for="forgotEmail">Registered Email Coordinate</label>
+                        <input type="email" id="forgotEmail" placeholder="yourname@domain.com">
+                        <div class="error-msg" id="forgotEmailError">Email coordinate target not found in records.</div>
+                    </div>
+                    <button type="submit" class="btn-submit" style="width: 100%; background-color: #f1c40f; color:#0b0f19;">Send Password Update Link</button>
+                </form>
                 
-                <!-- LIST A: REGISTERED LOGIN MEMBERS (FROM DYNAMIC ACCOUNTS DIRECTORY) -->
-                <div class="panel-card">
-                    <h3>Registered Login Profiles</h3>
-                    <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:15px;">👤 Profiles generated via the registration tab inside the portal.</p>
-                    <div class="table-wrap">
-                        <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th>Member Profile</th>
-                                    <th>User Handle ID</th>
-                                    <th>Location Address</th>
-                                    <th style="text-align: right;">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="loginMembersTableBody"></tbody>
-                        </table>
-                    </div>
+                <div id="simulatedEmailBox" style="margin-top:20px; background: rgba(255,255,255,0.03); border:1px dashed rgba(255,255,255,0.1); padding:15px; border-radius:6px; display:none;">
+                    <p style="font-size:0.8rem; color:var(--text-muted); text-align:center; margin-bottom:10px;">📨 [Simulated System Email Box Check]</p>
+                    <button id="simulatedLinkBtn" class="btn-submit" style="width:100%; padding:8px; font-size:0.85rem; background: var(--text-main); color: var(--bg-dark);">Click simulated link to clear password</button>
                 </div>
 
-                <!-- LIST B: SUBSCRIPTION MEMBERS (FROM SALES AND TRIALS ACTIONS) -->
-                <div class="panel-card">
-                    <h3>Subscription & Plan Tiers Ledger</h3>
-                    <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:15px;">💳 Actions triggered when users claim trial sessions or checkout plan metrics.</p>
-                    <div class="table-wrap">
-                        <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th>Customer Identity</th>
-                                    <th>Assigned Plan</th>
-                                    <th>Duration Scope</th>
-                                    <th style="text-align: right;">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="subscriptionTableBody"></tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <!-- STAFF TABLE ROSTER -->
-                <div class="panel-card">
-                    <h3>Staff Roster Ledger</h3>
-                    <div class="table-wrap">
-                        <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th>Staff Name</th>
-                                    <th>Assigned Job Role</th>
-                                    <th style="text-align: right;">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="staffTableBody"></tbody>
-                        </table>
-                    </div>
+                <div class="auth-helper-links" style="justify-content: center; margin-top:15px;">
+                    <span class="auth-link" id="backToLoginFromForgot">Return to Sign In Screen</span>
                 </div>
             </div>
 
-            <div class="admin-form-column">
-                <!-- ADD STAFF FORM WITH IMAGE OPTION -->
-                <div class="panel-card">
-                    <h3 style="color: var(--admin-glow);">Appoint New Staff</h3>
-                    <form id="addStaffForm" novalidate>
-                        <div class="form-group"><label>Full Professional Name</label><input type="text" id="staffName" placeholder="e.g., Coach Sivadev"></div>
-                        <div class="form-group">
-                            <label>Operational Role</label>
-                            <select id="staffRole">
-                                <option value="Head Strength Coach">Head Strength Coach</option>
-                                <option value="HIIT Conditioning Lead">HIIT Conditioning Lead</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>Profile Image URL Link</label>
-                            <input type="url" id="staffImg" placeholder="https://images.unsplash.com/...">
-                        </div>
-                        <div class="form-group"><label>Internal Contact Email</label><input type="email" id="staffEmail" placeholder="staff@ironzone.com"></div>
-                        <button type="submit" class="btn-post">Deploy Staff Card</button>
-                    </form>
+            <!-- PANEL D: CHANGE PASSWORD CONFIGURATOR -->
+            <div id="resetPasswordPanel" class="auth-panel">
+                <div class="login-card-header">
+                    <h2>RESET<span>PASSWORD</span></h2>
+                    <p>Establish a fresh entry password key update</p>
                 </div>
-
-                <!-- WORKOUT TASK ASSIGNMENT TOOLBAR -->
-                <div class="panel-card">
-                    <h3 style="color: var(--accent);">Assign Trainer Task</h3>
-                    <form id="assignTaskForm" novalidate>
-                        <div class="form-group"><label>Task Title Heading</label><input type="text" id="taskTitle" placeholder="e.g., Circuit Flow Alpha"></div>
-                        <div class="form-group"><label>Assign to Trainer</label><select id="taskCoachSelect"></select></div>
-                        <div class="form-group"><label>Workout Directives / Task Cues</label><textarea id="taskBody" rows="3" placeholder="Specify routines metrics..."></textarea></div>
-                        <button type="submit" class="btn-post" style="background-color: var(--accent); color: #fff;">Publish Assignment</button>
-                    </form>
-                </div>
+                <form id="resetPasswordForm" novalidate>
+                    <div class="form-group">
+                        <label for="newPassword">New Account Password</label>
+                        <input type="password" id="newPassword" placeholder="••••••••">
+                        <div class="error-msg" id="newPasswordError">Password must be at least 6 characters long.</div>
+                    </div>
+                    <button type="submit" class="btn-submit" style="width: 100%; background-color: var(--accent);">Commit New Password</button>
+                </form>
             </div>
-        </div>
-    </main>
 
-    <!-- DRILL OVERLAY PROFILE CARD MODAL -->
-    <div id="detailModal" class="detail-modal-mask">
-        <div class="detail-window-card">
-            <span class="detail-close-btn" id="closeDetailBtn">&times;</span>
-            <h3 id="modalProfileHeading" style="text-transform:uppercase; color:var(--admin-glow); margin-bottom:25px; padding-bottom:10px; border-bottom:1px solid rgba(255,255,255,0.08);">Registry Detail View</h3>
-            <div id="modalDetailsContentContainer"></div>
         </div>
     </div>
 
+    <!-- MAIN APPLICATIVE VIEW CONTAINER -->
+    <div id="main-app-interface">
+        <header>
+            <nav class="navbar">
+                <a href="#" class="logo">DIAGON<span>ZONE</span></a>
+                
+                <button class="menu-toggle" id="menuBarIcon" aria-label="Toggle Navigation Menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+
+                <div class="nav-container" id="navContainer">
+                    <ul class="nav-links">
+                        <li><a href="#profile-widget">My Profile</a></li>
+                        <li><a href="#programs">Programs</a></li>
+                        <li><a href="#trainers">Trainers</a></li>
+                        <li><a href="#tasks">Daily Cues</a></li>
+                        <li><a href="#pricing">Plans</a></li>
+                        <li><a href="#gallery">Gallery</a></li>
+                        <li><button class="btn-logout" id="logoutBtn">Log Out</button></li>
+                    </ul>
+                </div>
+            </nav>
+        </header>
+
+        <!-- SECURE USER PROFILE COMPONENT WITH LIVE EDIT FEATURES -->
+        <section id="profile-widget" class="container" style="padding-bottom: 0;">
+            <div class="user-profile-section">
+                
+                <div class="profile-display-row">
+                    <div class="profile-avatar-box">
+                        <img id="usrDisplayAvatar" src="" alt="User Avatar">
+                    </div>
+                    <div class="profile-details-grid">
+                        <div class="profile-meta-item"><h5>User Identity ID</h5><p id="usrDisplayId" class="userid-tag">N/A</p></div>
+                        <div class="profile-meta-item"><h5>Full Name</h5><p id="usrDisplayName">N/A</p></div>
+                        <div class="profile-meta-item"><h5>Email Coordinates</h5><p id="usrDisplayEmail">N/A</p></div>
+                        <div class="profile-meta-item"><h5>Physical Address</h5><p id="usrDisplayAddress">N/A</p></div>
+                    </div>
+                </div>
+
+                <form id="profileEditForm" class="profile-edit-form-box" style="width:100%;">
+                    <div class="form-group"><label for="editName">Update Name</label><input type="text" id="editName"></div>
+                    <div class="form-group"><label needle for="editAvatar">Update Avatar URL</label><input type="url" id="editAvatar"></div>
+                    <div class="form-group"><label for="editAddress">Update Physical Address</label><input type="text" id="editAddress"></div>
+                    <div style="grid-column: 1 / -1; display:flex; gap:10px; justify-content:flex-end;">
+                        <button type="button" class="btn-logout" id="cancelProfileEditBtn" style="border-color:#ccc; color:#ccc;">Cancel</button>
+                        <button type="submit" class="btn-submit" style="padding:8px 25px;">Save Changes</button>
+                    </div>
+                </form>
+
+                <div class="profile-edit-controls" id="editActionContainer">
+                    <button class="btn-edit-profile" id="activateProfileEditorBtn">Edit Profile</button>
+                </div>
+            </div>
+        </section>
+
+        <section class="hero">
+            <div class="hero-content">
+                <h1>Welcome Back, Athlete.</h1>
+                <p>Your session portal is ready. Check out your trainer's assigned schedules and workouts below.</p>
+                <a href="#tasks" class="btn-large">View Assigned Tasks</a>
+            </div>
+        </section>
+
+        <!-- FITNESS PROGRAMS -->
+        <section id="programs" class="container">
+            <div class="section-header">
+                <h2>Fitness Programs</h2>
+                <p>Explore specialized tracks built to deliver definitive performance goals.</p>
+            </div>
+            <div class="programs-grid">
+                <div class="program-card"><div class="program-icon">🏋️‍♂️</div><h3>Strength & Iron</h3><p>Heavy compound loading, powerlifting tracks, and progressive mass building dynamics.</p></div>
+                <div class="program-card"><div class="program-icon">⚡</div><h3>HIIT Circuit</h3><p>High intensity metabolic conditioning setups built to torch fat and optimize stamina.</p></div>
+                <div class="program-card"><div class="program-icon">🧘</div><h3>Yoga Mobility</h3><p>Deep core structural stability alignment, fluid stretching, and dynamic recovery.</p></div>
+            </div>
+        </section>
+
+        <!-- DYNAMIC TRAINER TASKS BOARD -->
+        <section id="tasks" class="container" style="background-color: rgba(255,255,255,0.01); border-radius: 8px;">
+            <div class="section-header">
+                <h2>Trainer Assignments Board</h2>
+                <p>Live active tasks pushed directly from management terminals.</p>
+            </div>
+            <div class="tasks-board-grid" id="userTasksBoardGrid"></div>
+        </section>
+
+        <!-- DYNAMIC APPOINTED TRAINERS ROSTER GRID (WITH EDIT/SELECT MODIFICATIONS) -->
+        <section id="trainers" class="container">
+            <div class="section-header">
+                <h2>Appointed Coaches</h2>
+                <p>Explore full profile directories, select personal coaches, or remove active trainer assignments.</p>
+            </div>
+            <div class="trainers-grid" id="userTrainersDisplayGrid"></div>
+        </section>
+
+        <!-- PLANS -->
+        <section id="pricing" class="container">
+            <div class="section-header"><h2>Membership Plans</h2><p>Pick a tier designed perfectly to support your regular routine.</p></div>
+            <div class="pricing-grid">
+                <div class="price-card" data-plan="Basic Tier" data-duration="1 Month"><h3>Basic Tier</h3><div class="price-amount">RS 29<span>/mo</span></div><button class="btn-select buy-plan-btn">Select Tier</button></div>
+                <div class="price-card featured" data-plan="Pro Tier" data-duration="6 Months"><h3>Pro Tier</h3><div class="price-amount">RS 49<span>/mo</span></div><button class="btn-select buy-plan-btn">Select Tier</button></div>
+                <div class="price-card" data-plan="Elite Tier" data-duration="12 Months"><h3>Elite Tier</h3><div class="price-amount">RS 89<span>/mo</span></div><button class="btn-select buy-plan-btn">Select Tier</button></div>
+            </div>
+        </section>
+
+        <!-- GALLERY -->
+        <section id="gallery" class="container">
+            <div class="section-header"><h2>Inside the Zone</h2><p>Virtual facility tour layout captures.</p></div>
+            <div class="gym-gallery">
+                <div class="gallery-item"><img src="https://images.unsplash.com/photo-1540497077202-7c8a3999166f?q=80&w=600" alt="Weights"><div class="gallery-overlay"><span>Weights</span></div></div>
+                <div class="gallery-item"><img src="https://images.unsplash.com/photo-1517838277536-f5f99be501cd?q=80&w=600" alt="Cardio"><div class="gallery-overlay"><span>Cardio Deck</span></div></div>
+            </div>
+        </section>
+
+        <!-- LIGHTBOX -->
+        <div id="lightboxModal" class="modal-backdrop">
+            <span class="modal-close-btn" id="closeLightboxBtn">&times;</span>
+            <img class="lightbox-content" id="lightboxImage" src="">
+            <div id="lightboxCaption" class="lightbox-caption"></div>
+        </div>
+
+        <!-- NEW COMPONENT: TRAINER PROFILE OVERLAY MODAL -->
+        <div id="trainerDetailModal" class="trainer-modal-mask">
+            <div class="trainer-window-card">
+                <span class="modal-close-btn" id="closeTrainerModalBtn">&times;</span>
+                <img id="modalTrainerImg" class="trainer-detail-avatar" src="" alt="Trainer Pic">
+                <h3 id="modalTrainerName" style="color: var(--accent); text-transform: uppercase; margin-bottom: 5px;">Coach Profile</h3>
+                <p id="modalTrainerRole" style="color: var(--profile-glow); font-weight: bold; font-size: 0.9rem; text-transform: uppercase; margin-bottom: 20px;">Role</p>
+                <div style="border-top: 1px solid rgba(255,255,255,0.05); padding-top: 15px; font-size: 0.95rem; text-align: left; color: var(--text-muted);">
+                    <p style="margin-bottom: 8px;"><strong>Email Contact:</strong> <span id="modalTrainerEmail" style="color: #fff;"></span></p>
+                    <p style="margin-bottom: 8px;"><strong>Clearance Rank:</strong> <span style="color: #fff;">Certified Instructor Class-A</span></p>
+                    <p><strong>Bio Target:</strong> Tailored training execution parameters, posture alignment monitoring, and progressive power tracking routines.</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- INTERACTIVE SCRIPT LOGIC WORKFLOWS -->
     <script>
-        let accountsDatabase = JSON.parse(localStorage.getItem('dbUserAccounts')) || [];
-        let subscriptionsDatabase = JSON.parse(localStorage.getItem('adminCustDB')) || [];
-        let staffDatabase = JSON.parse(localStorage.getItem('adminStaffDB')) || [
-            { id: "s1", name: "Coach Dev", role: "Head Strength Coach", email: "dev@ironzone.com", clearance: "Level 3 Access", shift: "06:00 AM - 14:00 PM", img: "https://images.unsplash.com/photo-1567013127542-490d757e51fc?q=80&w=400" }
+        let userAccountsDirectory = JSON.parse(localStorage.getItem('dbUserAccounts')) || [
+            { email: "user@test.com", password: "123456", name: "Default User", userId: "default_athlete", img: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=150", address: "Kochi, India" }
         ];
-        let tasksDatabase = JSON.parse(localStorage.getItem('adminTasksDB')) || [];
+        localStorage.setItem('dbUserAccounts', JSON.stringify(userAccountsDirectory));
 
-        const detailModal = document.getElementById('detailModal');
-        const closeDetailBtn = document.getElementById('closeDetailBtn');
+        const authGateway = document.getElementById('authGateway');
+        const mainAppInterface = document.getElementById('main-app-interface');
+        const passwordInput = document.getElementById('loginPassword');
+        const togglePassword = document.getElementById('togglePassword');
 
-        document.getElementById('logoutBtn').addEventListener('click', () => { window.location.href = 'up.html'; });
+        const loginPanel = document.getElementById('loginPanel');
+        const registerPanel = document.getElementById('registerPanel');
+        const forgotPanel = document.getElementById('forgotPanel');
+        const resetPasswordPanel = document.getElementById('resetPasswordPanel');
 
-        function refreshDashboardViews() {
-            accountsDatabase = JSON.parse(localStorage.getItem('dbUserAccounts')) || [];
-            subscriptionsDatabase = JSON.parse(localStorage.getItem('adminCustDB')) || [];
-            tasksDatabase = JSON.parse(localStorage.getItem('adminTasksDB')) || [];
+        const menuBarIcon = document.getElementById('menuBarIcon');
+        const navContainer = document.getElementById('navContainer');
+
+        let transientRecoveryEmailTarget = "";
+
+        if (localStorage.getItem('gymUserAuthenticated') === 'true') {
+            authGateway.classList.add('authenticated'); mainAppInterface.classList.add('visible');
+            populateActiveUserProfile(); renderSynchronizedFeeds();
+        }
+
+        menuBarIcon.addEventListener('click', () => navContainer.classList.toggle('open-bar'));
+        navContainer.querySelectorAll('a, button').forEach(l => l.addEventListener('click', () => navContainer.classList.remove('open-bar')));
+
+        function switchPanel(targetPanel) {
+            document.querySelectorAll('.auth-panel').forEach(p => p.classList.remove('active-panel'));
+            targetPanel.classList.add('active-panel');
+        }
+
+        document.getElementById('goToRegisterBtn').addEventListener('click', () => switchPanel(registerPanel));
+        document.getElementById('goToForgotBtn').addEventListener('click', () => switchPanel(forgotPanel));
+        document.getElementById('backToLoginFromReg').addEventListener('click', () => switchPanel(loginPanel));
+        document.getElementById('backToLoginFromForgot').addEventListener('click', () => switchPanel(loginPanel));
+
+        document.getElementById('loginForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value.trim();
+            const pass = passwordInput.value.trim();
+            if (email === 'admin@test.com' && pass === 'admin123') { window.location.href = 'admin.1.html'; return; }
+
+            let accounts = JSON.parse(localStorage.getItem('dbUserAccounts')) || [];
+            let verifiedUser = accounts.find(acc => acc.email === email && acc.password === pass);
+
+            if(verifiedUser) {
+                localStorage.setItem('gymUserAuthenticated', 'true');
+                localStorage.setItem('activeUserEmailSession', email);
+                captureCustomerToAdminDB(verifiedUser.name, email, "Standard Pass", "Session Access");
+                window.location.reload();
+            } else { alert("BCredentials mismatch. Account matching failed."); }
+        });
+
+        document.getElementById('registerForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const userId = document.getElementById('regUserId').value.trim();
+            const name = document.getElementById('regName').value.trim();
+            const email = document.getElementById('regEmail').value.trim();
+            const img = document.getElementById('regImg').value.trim();
+            const address = document.getElementById('regAddress').value.trim();
+            const pass = document.getElementById('regPassword').value.trim();
             
-            renderLoginMembersTable();
-            renderSubscriptionsTable();
-            renderStaffTable();
-            populateCoachSelectMenu();
-            calculateMetricCounters();
-        }
+            let isRegValid = true;
+            let accounts = JSON.parse(localStorage.getItem('dbUserAccounts')) || [];
 
-        function calculateMetricCounters() {
-            document.getElementById('activePlansCount').textContent = subscriptionsDatabase.filter(c => c.active).length;
-            document.getElementById('totalCustomersCount').textContent = accountsDatabase.length;
-            document.getElementById('totalStaffCount').textContent = staffDatabase.length;
-        }
+            if(!userId || !name || pass.length < 6) isRegValid = false;
+            if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || accounts.some(acc => acc.email === email) || email === 'admin@test.com') {
+                document.getElementById('regEmailError').style.display = 'block'; isRegValid = false;
+            } else { document.getElementById('regEmailError').style.display = 'none'; }
 
-        function populateCoachSelectMenu() {
-            const select = document.getElementById('taskCoachSelect'); select.innerHTML = "";
-            staffDatabase.forEach(s => { select.innerHTML += `<option value="${s.name}">${s.name}</option>`; });
-        }
-
-        // RENDER METHOD 1: REGISTERED SYSTEM LOGIN ACCOUNTS LIST
-        function renderLoginMembersTable() {
-            const tbody = document.getElementById('loginMembersTableBody'); tbody.innerHTML = "";
-            if(accountsDatabase.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted);">No login accounts created yet.</td></tr>`; return;
+            if(isRegValid) {
+                const profileImgFallback = img || "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=150";
+                accounts.push({ email, password: pass, name, userId, img: profileImgFallback, address: address || "Not Provided" });
+                localStorage.setItem('dbUserAccounts', JSON.stringify(accounts));
+                localStorage.setItem('gymUserAuthenticated', 'true');
+                localStorage.setItem('activeUserEmailSession', email);
+                captureCustomerToAdminDB(name, email, "Standard Pass", "New Register");
+                window.location.reload();
             }
-            accountsDatabase.forEach((acc, index) => {
-                const tr = document.createElement('tr'); tr.className = "clickable-row";
-                tr.innerHTML = `
-                    <td>
-                        <div class="flex-user-cell">
-                            <img src="${acc.img || 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=50'}" class="table-avatar">
-                            <div>
-                                <strong>${escapeHtml(acc.name)}</strong><br>
-                                <span style="font-size:0.75rem; color:var(--text-muted);">${escapeHtml(acc.email)}</span>
-                            </div>
-                        </div>
-                    </td>
-                    <td><span class="userid-tag" style="color:var(--admin-glow);">@${escapeHtml(acc.userId)}</span></td>
-                    <td>${escapeHtml(acc.address || 'Not Stated')}</td>
-                    <td style="text-align: right;"><button class="btn-delete-action btn-del-acc" data-email="${acc.email}">Delete</button></td>
-                `;
-                tr.addEventListener('click', (e) => { if (!e.target.classList.contains('btn-delete-action')) launchProfileModal(acc, 'login_member'); });
-                tbody.appendChild(tr);
-            });
-
-            tbody.querySelectorAll('.btn-del-acc').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    const targetEmail = e.target.getAttribute('data-email');
-                    if(confirm(`Completely wipe member profile (${targetEmail}) out of the ecosystem database?`)) {
-                        accountsDatabase = accountsDatabase.filter(acc => acc.email !== targetEmail);
-                        localStorage.setItem('dbUserAccounts', JSON.stringify(accountsDatabase)); refreshDashboardViews();
-                    }
-                });
-            });
-        }
-
-        // RENDER METHOD 2: SALES CONTRACT PLANS & TIERS TRANSACTIONS LIST
-        function renderSubscriptionsTable() {
-            const tbody = document.getElementById('subscriptionTableBody'); tbody.innerHTML = "";
-            if(subscriptionsDatabase.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted);">No checkout actions recorded.</td></tr>`; return;
-            }
-            subscriptionsDatabase.forEach(c => {
-                const tr = document.createElement('tr'); tr.className = "clickable-row";
-                tr.innerHTML = `
-                    <td><strong>${escapeHtml(c.name)}</strong><br><span style="font-size:0.75rem; color:var(--text-muted);">${escapeHtml(c.email)}</span></td>
-                    <td><span style="color:var(--admin-glow); font-weight:600;">${escapeHtml(c.plan)}</span></td>
-                    <td><span style="font-weight:600;">${escapeHtml(c.duration || '1 Session')}</span></td>
-                    <td style="text-align: right;"><button class="btn-delete-action btn-del-sub" data-id="${c.id}">Delete</button></td>
-                `;
-                tr.addEventListener('click', (e) => { if (!e.target.classList.contains('btn-delete-action')) launchProfileModal(c, 'customer'); });
-                tbody.appendChild(tr);
-            });
-
-            tbody.querySelectorAll('.btn-del-sub').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    const targetId = e.target.getAttribute('data-id');
-                    if(confirm("Confirm hard destruction of selection transaction?")) {
-                        subscriptionsDatabase = subscriptionsDatabase.filter(c => c.id !== targetId);
-                        localStorage.setItem('adminCustDB', JSON.stringify(subscriptionsDatabase)); refreshDashboardViews();
-                    }
-                });
-            });
-        }
-
-        // UPDATED: Renders dynamic staff image thumbnails inside the row item list
-        function renderStaffTable() {
-            const tbody = document.getElementById('staffTableBody'); tbody.innerHTML = "";
-            staffDatabase.forEach(s => {
-                const tr = document.createElement('tr'); tr.className = "clickable-row";
-                const staffAvatarFallback = s.img || "https://images.unsplash.com/photo-1548690312-e3b507d8c110?q=80&w=400";
-                tr.innerHTML = `
-                    <td>
-                        <div class="flex-user-cell">
-                            <img src="${staffAvatarFallback}" class="table-avatar" alt="${escapeHtml(s.name)}">
-                            <strong>${escapeHtml(s.name)}</strong>
-                        </div>
-                    </td>
-                    <td><span style="color:var(--admin-glow); font-weight:600;">${escapeHtml(s.role)}</span></td>
-                    <td style="text-align: right;"><button class="btn-delete-action btn-del-staff" data-id="${s.id}">Remove</button></td>
-                `;
-                tr.addEventListener('click', (e) => { if (!e.target.classList.contains('btn-delete-action')) launchProfileModal(s, 'staff'); });
-                tbody.appendChild(tr);
-            });
-
-            tbody.querySelectorAll('.btn-del-staff').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    if(confirm("Remove tracking card?")) {
-                        staffDatabase = staffDatabase.filter(s => s.id !== e.target.getAttribute('data-id'));
-                        localStorage.setItem('adminStaffDB', JSON.stringify(staffDatabase)); refreshDashboardViews();
-                    }
-                });
-            });
-        }
-
-        function launchProfileModal(obj, typeClass) {
-            const container = document.getElementById('modalDetailsContentContainer'); const heading = document.getElementById('modalProfileHeading');
-            detailModal.style.display = 'flex';
-
-            if(typeClass === 'login_member') {
-                heading.innerHTML = `Registered Member Audit`;
-                container.innerHTML = `
-                    <div style="text-align:center; margin-bottom:15px;"><img src="${obj.img}" style="width:80px; height:80px; border-radius:50%; object-fit:cover; border:2px solid var(--admin-glow)"></div>
-                    <div class="detail-row"><span class="label-title">User ID Handle</span><span class="val-data" style="color:var(--admin-glow)">@${escapeHtml(obj.userId)}</span></div>
-                    <div class="detail-row"><span class="label-title">Full Name</span><span class="val-data">${escapeHtml(obj.name)}</span></div>
-                    <div class="detail-row"><span class="label-title">Email Location</span><span class="val-data">${escapeHtml(obj.email)}</span></div>
-                    <div class="detail-row"><span class="label-title">Address</span><span class="val-data">${escapeHtml(obj.address)}</span></div>
-                `;
-            } else if (typeClass === 'customer') {
-                heading.innerHTML = `Subscription Contract Audit`;
-                container.innerHTML = `
-                    <div class="detail-row"><span class="label-title">Client Variant</span><span class="val-data">${escapeHtml(obj.name)}</span></div>
-                    <div class="detail-row"><span class="label-title">Email Coordinates</span><span class="val-data">${escapeHtml(obj.email)}</span></div>
-                    <div class="detail-row"><span class="label-title">Plan Allocation</span><span class="val-data" style="color:var(--admin-glow)">${escapeHtml(obj.plan)}</span></div>
-                    <div class="detail-row"><span class="label-title">Duration Term</span><span class="val-data">${escapeHtml(obj.duration || 'Session Term')}</span></div>
-                    <div class="detail-row"><span class="label-title">Checkout Log Date</span><span class="val-data">${obj.joinDate}</span></div>
-                `;
-            } else {
-                heading.innerHTML = `Staff Directory Card`;
-                const modalAvatar = obj.img || "https://images.unsplash.com/photo-1548690312-e3b507d8c110?q=80&w=400";
-                container.innerHTML = `
-                    <div style="text-align:center; margin-bottom:15px;"><img src="${modalAvatar}" style="width:80px; height:80px; border-radius:50%; object-fit:cover; border:2px solid var(--admin-glow)"></div>
-                    <div class="detail-row"><span class="label-title">Employee</span><span class="val-data">${escapeHtml(obj.name)}</span></div>
-                    <div class="detail-row"><span class="label-title">Role</span><span class="val-data">${escapeHtml(obj.role)}</span></div>
-                    <div class="detail-row"><span class="label-title">Internal Email</span><span class="val-data">${escapeHtml(obj.email)}</span></div>
-                `;
-            }
-        }
-
-        // SAVES THE CAPTURED IMAGE URL TO LOCALSTORAGE
-        document.getElementById('addStaffForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const name = document.getElementById('staffName').value.trim();
-            const role = document.getElementById('staffRole').value;
-            const img = document.getElementById('staffImg').value.trim();
-            const email = document.getElementById('staffEmail').value.trim();
-            if(!name || !email) return;
-
-            // Appends s.img correctly into the persistence state payload structure
-            staffDatabase.push({ id: "s_" + Date.now(), name, role, email, img, clearance: "Level 1 Access", shift: "08:00 AM - 16:00 PM" });
-            localStorage.setItem('adminStaffDB', JSON.stringify(staffDatabase));
-            document.getElementById('addStaffForm').reset(); refreshDashboardViews();
-            alert(`👤 Success! ${name} has been appointed.`);
         });
 
-        document.getElementById('assignTaskForm').addEventListener('submit', (e) => {
+        document.getElementById('forgotForm').addEventListener('submit', (e) => {
             e.preventDefault();
-            const title = document.getElementById('taskTitle').value.trim();
-            const coach = document.getElementById('taskCoachSelect').value;
-            const body = document.getElementById('taskBody').value.trim();
-            if(!title || !body) return;
-
-            tasksDatabase.push({ id: "t_" + Date.now(), title, coach, body });
-            localStorage.setItem('adminTasksDB', JSON.stringify(tasksDatabase));
-            document.getElementById('assignTaskForm').reset(); refreshDashboardViews();
-            alert("📝 Assignment published successfully.");
+            const email = document.getElementById('forgotEmail').value.trim();
+            let accounts = JSON.parse(localStorage.getItem('dbUserAccounts')) || [];
+            if(accounts.some(acc => acc.email === email)) {
+                transientRecoveryEmailTarget = email; document.getElementById('simulatedEmailBox').style.display = 'block';
+            } else { document.getElementById('forgotEmailError').style.display = 'block'; }
         });
 
-        closeDetailBtn.addEventListener('click', () => detailModal.style.display = 'none');
-        window.onload = refreshDashboardViews;
-        function escapeHtml(text) { return text ? text.replace(/&/g, "&amp;").replace(/</g, "&lt;") : ''; }
+        document.getElementById('simulatedLinkBtn').addEventListener('click', () => {
+            document.getElementById('simulatedEmailBox').style.display = 'none'; switchPanel(resetPasswordPanel);
+        });
+
+        document.getElementById('resetPasswordForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const newPass = document.getElementById('newPassword').value.trim();
+            if(newPass.length < 6) return;
+            let accounts = JSON.parse(localStorage.getItem('dbUserAccounts')) || [];
+            let idx = accounts.findIndex(acc => acc.email === transientRecoveryEmailTarget);
+            if(idx !== -1) {
+                accounts[idx].password = newPass; localStorage.setItem('dbUserAccounts', JSON.stringify(accounts));
+                alert("Reset Complete! Log in with your new password key."); switchPanel(loginPanel);
+            }
+        });
+
+        function populateActiveUserProfile() {
+            const activeEmail = localStorage.getItem('activeUserEmailSession');
+            let accounts = JSON.parse(localStorage.getItem('dbUserAccounts')) || [];
+            let currentProfile = accounts.find(acc => acc.email === activeEmail);
+            if(currentProfile) {
+                document.getElementById('usrDisplayAvatar').src = currentProfile.img;
+                document.getElementById('usrDisplayId').textContent = `@${currentProfile.userId}`;
+                document.getElementById('usrDisplayName').textContent = currentProfile.name;
+                document.getElementById('usrDisplayEmail').textContent = currentProfile.email;
+                document.getElementById('usrDisplayAddress').textContent = currentProfile.address;
+
+                document.getElementById('editName').value = currentProfile.name;
+                document.getElementById('editAvatar').value = currentProfile.img;
+                document.getElementById('editAddress').value = currentProfile.address;
+            }
+        }
+
+        const displayRow = document.querySelector('.profile-display-row');
+        const editFormBox = document.getElementById('profileEditForm');
+        const actionContainer = document.getElementById('editActionContainer');
+
+        document.getElementById('activateProfileEditorBtn').addEventListener('click', () => {
+            displayRow.style.display = 'none'; actionContainer.style.display = 'none'; editFormBox.style.display = 'grid';
+        });
+
+        document.getElementById('cancelProfileEditBtn').addEventListener('click', () => {
+            editFormBox.style.display = 'none'; displayRow.style.display = 'flex'; actionContainer.style.display = 'flex';
+        });
+
+        editFormBox.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const activeEmail = localStorage.getItem('activeUserEmailSession');
+            let accounts = JSON.parse(localStorage.getItem('dbUserAccounts')) || [];
+            let idx = accounts.findIndex(acc => acc.email === activeEmail);
+
+            if (idx !== -1) {
+                accounts[idx].name = document.getElementById('editName').value.trim();
+                accounts[idx].img = document.getElementById('editAvatar').value.trim() || "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=150";
+                accounts[idx].address = document.getElementById('editAddress').value.trim() || "Not Provided";
+                localStorage.setItem('dbUserAccounts', JSON.stringify(accounts));
+                alert("Profile details adjusted safely!");
+                editFormBox.style.display = 'none'; displayRow.style.display = 'flex'; actionContainer.style.display = 'flex';
+                populateActiveUserProfile();
+            }
+        });
+
+        function captureCustomerToAdminDB(name, email, plan, duration) {
+            let activeDB = JSON.parse(localStorage.getItem('adminCustDB')) || [];
+            if(activeDB.some(c => c.email === email && c.plan === plan)) return;
+            activeDB.push({ id: "cust_" + Date.now(), name, email, plan, duration, active: true, joinDate: new Date().toISOString().split('T')[0] });
+            localStorage.setItem('adminCustDB', JSON.stringify(activeDB));
+        }
+
+        // --- 4. TRAINER RENDERING ENGINE WITH DYNAMIC SELECTION/VIEW AND DELETION ---
+        function renderSynchronizedFeeds() {
+            const coachesGrid = document.getElementById('userTrainersDisplayGrid'); 
+            coachesGrid.innerHTML = "";
+            
+            const staffDB = JSON.parse(localStorage.getItem('adminStaffDB')) || [];
+            const activeEmail = localStorage.getItem('activeUserEmailSession');
+            const personalCoachKey = `personalCoach_${activeEmail}`;
+            const chosenCoachId = localStorage.getItem(personalCoachKey);
+
+            staffDB.forEach(s => {
+                const imgUrl = s.img || "https://images.unsplash.com/photo-1548690312-e3b507d8c110?q=80&w=400";
+                const isSelected = (chosenCoachId === s.id);
+                
+                // Construct card dynamic nodes
+                const card = document.createElement('div');
+                card.className = `trainer-card ${isSelected ? 'selected-personal-coach' : ''}`;
+                
+                card.innerHTML = `
+                    <img src="${imgUrl}" class="trainer-img" alt="Coach">
+                    <div class="trainer-info">
+                        <h3>${s.name}</h3>
+                        <span>${s.role} ${isSelected ? '(Personal Coach)' : ''}</span>
+                    </div>
+                    <div class="trainer-card-actions">
+                        <button class="btn-trainer-action btn-trainer-view" data-id="${s.id}">Profile Info</button>
+                        ${isSelected ? 
+                            `<button class="btn-trainer-action btn-trainer-delete" data-id="${s.id}">Delete Selection</button>` : 
+                            `<button class="btn-trainer-action btn-trainer-select" data-id="${s.id}">Select for Personal</button>`
+                        }
+                    </div>
+                `;
+                
+                // Action: Info modal sheet populator trigger
+                card.querySelector('.btn-trainer-view').addEventListener('click', () => {
+                    document.getElementById('modalTrainerImg').src = imgUrl;
+                    document.getElementById('modalTrainerName').textContent = s.name;
+                    document.getElementById('modalTrainerRole').textContent = s.role;
+                    document.getElementById('modalTrainerEmail').textContent = s.email;
+                    document.getElementById('trainerDetailModal').style.display = 'flex';
+                });
+
+                // Action: Select Coach assignment handler
+                if (!isSelected) {
+                    card.querySelector('.btn-trainer-select').addEventListener('click', () => {
+                        localStorage.setItem(personalCoachKey, s.id);
+                        alert(`🎯 Success! ${s.name.toUpperCase()} has been appointed as your Personal Trainer.`);
+                        renderSynchronizedFeeds();
+                    });
+                } else {
+                    // Action: Delete Selection clean handler removal
+                    card.querySelector('.btn-trainer-delete').addEventListener('click', () => {
+                        if(confirm("Are you sure you want to remove this personal coach assignment?")) {
+                            localStorage.removeItem(personalCoachKey);
+                            renderSynchronizedFeeds();
+                        }
+                    });
+                }
+
+                coachesGrid.appendChild(card);
+            });
+
+            // Fallback render block if roster is empty
+            if(staffDB.length === 0) {
+                coachesGrid.innerHTML = `<p style="color:var(--text-muted); font-style:italic;">No trainers have been deployed by administration yet.</p>`;
+            }
+
+            // Sync Tasks ledger list data feed loop rows
+            const tasksGrid = document.getElementById('userTasksBoardGrid'); tasksGrid.innerHTML = "";
+            const tasksDB = JSON.parse(localStorage.getItem('adminTasksDB')) || [];
+            if(tasksDB.length === 0) { tasksGrid.innerHTML = `<p style="color:var(--text-muted); font-style:italic; padding:10px;">No active workout tasks assigned on the board today.</p>`; return; }
+            tasksDB.forEach(t => { tasksGrid.innerHTML += `<div class="task-view-card"><h4>${t.title}</h4><div class="task-assignee">Assigned By: ${t.coach}</div><p>${t.body}</p></div>`; });
+        }
+
+        // Close Trainer Profile Info Modal closures
+        document.getElementById('closeTrainerModalBtn').addEventListener('click', () => {
+            document.getElementById('trainerDetailModal').style.display = 'none';
+        });
+        window.addEventListener('click', (e) => {
+            if(e.target === document.getElementById('trainerDetailModal')) {
+                document.getElementById('trainerDetailModal').style.display = 'none';
+            }
+        });
+
+        logoutBtn.addEventListener('click', () => { localStorage.removeItem('gymUserAuthenticated'); localStorage.removeItem('activeUserEmailSession'); window.location.reload(); });
+        togglePassword.addEventListener('click', () => { passwordInput.type = passwordInput.type === 'password' ? 'text' : 'password'; });
+
+        const galleryItems = document.querySelectorAll('.gallery-item');
+        galleryItems.forEach(item => {
+            item.addEventListener('click', () => {
+                document.getElementById('lightboxModal').style.display = 'flex';
+                document.getElementById('lightboxImage').src = item.querySelector('img').src;
+            });
+        });
+        document.getElementById('closeLightboxBtn').addEventListener('click', () => document.getElementById('lightboxModal').style.display = 'none');
+
+        document.querySelectorAll('.buy-plan-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const card = e.target.closest('.price-card');
+                const activeEmail = localStorage.getItem('activeUserEmailSession') || "visitor@test.com";
+                const accounts = JSON.parse(localStorage.getItem('dbUserAccounts')) || [];
+                const matched = accounts.find(a => a.email === activeEmail);
+                captureCustomerToAdminDB(matched ? matched.name : "Web Inquirer", activeEmail, card.getAttribute('data-plan'), card.getAttribute('data-duration'));
+                alert(`💳 Choice checkout allocation captured directly to admin keys.`);
+            });
+        });
     </script>
 </body>
 </html>
