@@ -32,7 +32,10 @@
         .analytics-card .counter-number { font-size: 2.5rem; font-weight: 800; color: #fff; margin-top: 5px; }
         .analytics-card .counter-number.glow { color: var(--admin-glow); }
 
-        .admin-workspace { display: grid; grid-template-columns: 2fr 1fr; gap: 40px; align-items: start; }
+        .admin-workspace { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 40px; align-items: start; }
+        @media (min-width: 900px) {
+            .admin-workspace { grid-template-columns: 2fr 1fr; }
+        }
         .panel-card { background: var(--bg-card); border-radius: 8px; padding: 30px; border: 1px solid rgba(255, 255, 255, 0.05); margin-bottom: 30px; }
         .panel-card h3 { text-transform: uppercase; letter-spacing: 1px; font-size: 1.2rem; margin-bottom: 20px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); padding-bottom: 10px; color: var(--admin-glow); }
 
@@ -43,7 +46,7 @@
         .data-table tr.clickable-row { cursor: pointer; }
         .data-table tr.clickable-row:hover td { background-color: rgba(255, 255, 255, 0.02); }
 
-        /* Small thumb styles for login members list */
+        /* Thumb styles for lists */
         .table-avatar { width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--admin-glow); object-fit: cover; }
         .flex-user-cell { display: flex; align-items: center; gap: 15px; }
 
@@ -69,7 +72,6 @@
         .detail-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
         .detail-row .label-title { text-transform: uppercase; font-size: 0.85rem; color: var(--text-muted); font-weight: bold; }
         .detail-row .val-data { font-weight: 600; }
-        @media (max-width: 900px) { .admin-workspace { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
@@ -196,7 +198,7 @@
         let accountsDatabase = JSON.parse(localStorage.getItem('dbUserAccounts')) || [];
         let subscriptionsDatabase = JSON.parse(localStorage.getItem('adminCustDB')) || [];
         let staffDatabase = JSON.parse(localStorage.getItem('adminStaffDB')) || [
-            { id: "s1", name: "Coach Dev", role: "Head Strength Coach", email: "dev@ironzone.com", clearance: "Level 3 Access", shift: "06:00 AM - 14:00 PM", img: "" }
+            { id: "s1", name: "Coach Dev", role: "Head Strength Coach", email: "dev@ironzone.com", clearance: "Level 3 Access", shift: "06:00 AM - 14:00 PM", img: "https://images.unsplash.com/photo-1567013127542-490d757e51fc?q=80&w=400" }
         ];
         let tasksDatabase = JSON.parse(localStorage.getItem('adminTasksDB')) || [];
 
@@ -296,11 +298,22 @@
             });
         }
 
+        // UPDATED: Renders dynamic staff image thumbnails inside the row item list
         function renderStaffTable() {
             const tbody = document.getElementById('staffTableBody'); tbody.innerHTML = "";
             staffDatabase.forEach(s => {
                 const tr = document.createElement('tr'); tr.className = "clickable-row";
-                tr.innerHTML = `<td><strong>${escapeHtml(s.name)}</strong></td><td><span style="color:var(--admin-glow); font-weight:600;">${escapeHtml(s.role)}</span></td><td style="text-align: right;"><button class="btn-delete-action btn-del-staff" data-id="${s.id}">Remove</button></td>`;
+                const staffAvatarFallback = s.img || "https://images.unsplash.com/photo-1548690312-e3b507d8c110?q=80&w=400";
+                tr.innerHTML = `
+                    <td>
+                        <div class="flex-user-cell">
+                            <img src="${staffAvatarFallback}" class="table-avatar" alt="${escapeHtml(s.name)}">
+                            <strong>${escapeHtml(s.name)}</strong>
+                        </div>
+                    </td>
+                    <td><span style="color:var(--admin-glow); font-weight:600;">${escapeHtml(s.role)}</span></td>
+                    <td style="text-align: right;"><button class="btn-delete-action btn-del-staff" data-id="${s.id}">Remove</button></td>
+                `;
                 tr.addEventListener('click', (e) => { if (!e.target.classList.contains('btn-delete-action')) launchProfileModal(s, 'staff'); });
                 tbody.appendChild(tr);
             });
@@ -340,10 +353,17 @@
                 `;
             } else {
                 heading.innerHTML = `Staff Directory Card`;
-                container.innerHTML = `<div class="detail-row"><span class="label-title">Employee</span><span class="val-data">${escapeHtml(obj.name)}</span></div><div class="detail-row"><span class="label-title">Role</span><span class="val-data">${escapeHtml(obj.role)}</span></div><div class="detail-row"><span class="label-title">Internal Email</span><span class="val-data">${escapeHtml(obj.email)}</span></div>`;
+                const modalAvatar = obj.img || "https://images.unsplash.com/photo-1548690312-e3b507d8c110?q=80&w=400";
+                container.innerHTML = `
+                    <div style="text-align:center; margin-bottom:15px;"><img src="${modalAvatar}" style="width:80px; height:80px; border-radius:50%; object-fit:cover; border:2px solid var(--admin-glow)"></div>
+                    <div class="detail-row"><span class="label-title">Employee</span><span class="val-data">${escapeHtml(obj.name)}</span></div>
+                    <div class="detail-row"><span class="label-title">Role</span><span class="val-data">${escapeHtml(obj.role)}</span></div>
+                    <div class="detail-row"><span class="label-title">Internal Email</span><span class="val-data">${escapeHtml(obj.email)}</span></div>
+                `;
             }
         }
 
+        // SAVES THE CAPTURED IMAGE URL TO LOCALSTORAGE
         document.getElementById('addStaffForm').addEventListener('submit', (e) => {
             e.preventDefault();
             const name = document.getElementById('staffName').value.trim();
@@ -352,6 +372,7 @@
             const email = document.getElementById('staffEmail').value.trim();
             if(!name || !email) return;
 
+            // Appends s.img correctly into the persistence state payload structure
             staffDatabase.push({ id: "s_" + Date.now(), name, role, email, img, clearance: "Level 1 Access", shift: "08:00 AM - 16:00 PM" });
             localStorage.setItem('adminStaffDB', JSON.stringify(staffDatabase));
             document.getElementById('addStaffForm').reset(); refreshDashboardViews();
