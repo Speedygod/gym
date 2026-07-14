@@ -89,7 +89,7 @@
 
         .login-card-header {
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 30px;
         }
 
         .login-card h2 {
@@ -102,25 +102,6 @@
 
         .login-card h2 span { color: var(--accent); }
         .login-card p { color: var(--text-muted); font-size: 0.95rem; }
-
-        /* Auth inner panels switcher */
-        .auth-panel { display: none; }
-        .auth-panel.active-panel { display: block; }
-
-        .auth-helper-links {
-            margin-top: 15px;
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.85rem;
-        }
-
-        .auth-link {
-            color: var(--accent);
-            cursor: pointer;
-            text-decoration: none;
-            font-weight: 600;
-        }
-        .auth-link:hover { text-decoration: underline; }
 
         /* ==========================================
            3. MAIN APP WRAPPER INTERFACE SWITCH
@@ -202,7 +183,9 @@
         }
 
         .cta-nav:hover { background-color: var(--accent-hover); }
+
         .menu-toggle { display: none; flex-direction: column; gap: 5px; cursor: pointer; }
+        .menu-toggle span { width: 25px; height: 3px; background-color: #fff; transition: 0.3s; }
 
         /* ==========================================
            5. HERO ZONE
@@ -299,6 +282,7 @@
         .gallery-overlay span { font-weight: bold; text-transform: uppercase; transform: translateY(20px); transition: transform 0.3s ease; }
         .gallery-item:hover img { transform: scale(1.1); }
         .gallery-item:hover .gallery-overlay { opacity: 1; }
+        .gallery-item:hover .gallery-overlay span { transform: translateY(0); }
 
         /* ==========================================
            10. TESTIMONIALS & CONTACT
@@ -326,112 +310,33 @@
 
         .modal-backdrop { display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(11, 15, 25, 0.95); align-items: center; justify-content: center; flex-direction: column; }
         .lightbox-content { max-width: 85%; max-height: 80vh; border-radius: 4px; }
+        .modal-close-btn { position: absolute; top: 20px; right: 25px; color: var(--text-muted); font-size: 35px; font-weight: bold; cursor: pointer; }
         footer { background-color: #06090f; text-align: center; padding: 30px 20px; color: var(--text-muted); font-size: 0.9rem; border-top: 1px solid rgba(255, 255, 255, 0.05); }
     </style>
 </head>
 <body>
 
-    <!-- AUTH GATEWAY SYSTEM WRAPPER -->
+    <!-- AUTH GATEWAY MASK -->
     <div id="authGateway" class="auth-gateway">
         <div class="login-card">
-            
-            <!-- PANEL A: LOGIN TERMINAL VIEW -->
-            <div id="loginPanel" class="auth-panel active-panel">
-                <div class="login-card-header">
-                    <h2>DIAGON<span>ZONE</span></h2>
-                    <p>Sign in to your member profile tracking feed</p>
-                </div>
-                <form id="loginForm" novalidate>
-                    <div class="form-group">
-                        <label for="loginEmail">Email Address</label>
-                        <input type="email" id="loginEmail" placeholder="member@diagonzone.com">
-                        <div class="error-msg" id="loginEmailError">Please enter a valid email format.</div>
-                    </div>
-                    <div class="form-group">
-                        <label for="loginPassword">Password</label>
-                        <input type="password" id="loginPassword" placeholder="••••••••">
-                        <span class="password-toggle" id="togglePassword">SHOW</span>
-                        <div class="error-msg" id="loginPasswordError">Password field required.</div>
-                    </div>
-                    <button type="submit" class="btn-submit" style="width: 100%;">Secure Sign In</button>
-                </form>
-                <div class="auth-helper-links">
-                    <span class="auth-link" id="goToForgotBtn">Forgot Password?</span>
-                    <span class="auth-link" id="goToRegisterBtn">New Member Registration</span>
-                </div>
+            <div class="login-card-header">
+                <h2>DIAGON<span>ZONE</span></h2>
+                <p>Please log in to access your dashboard interface</p>
             </div>
-
-            <!-- PANEL B: UNIQUE EMAIL REGISTRATION VIEW -->
-            <div id="registerPanel" class="auth-panel">
-                <div class="login-card-header">
-                    <h2>REGISTER<span>NOW</span></h2>
-                    <p>Establish a brand new unique tracking profile</p>
+            <form id="loginForm" novalidate>
+                <div class="form-group">
+                    <label for="loginEmail">Email Address</label>
+                    <input type="email" id="loginEmail" placeholder="member@ironzone.com">
+                    <div class="error-msg" id="loginEmailError">Please enter a valid email coordinates format.</div>
                 </div>
-                <form id="registerForm" novalidate>
-                    <div class="form-group">
-                        <label for="regName">Full Name</label>
-                        <input type="text" id="regName" placeholder="John Doe">
-                        <div class="error-msg" id="regNameError">Name required.</div>
-                    </div>
-                    <div class="form-group">
-                        <label for="regEmail">Unique Email Address</label>
-                        <input type="email" id="regEmail" placeholder="yourname@domain.com">
-                        <div class="error-msg" id="regEmailError">This email target coordinate is already taken.</div>
-                    </div>
-                    <div class="form-group">
-                        <label for="regPassword">Secure Password</label>
-                        <input type="password" id="regPassword" placeholder="••••••••">
-                        <div class="error-msg" id="regPasswordError">Must be at least 6 characters.</div>
-                    </div>
-                    <button type="submit" class="btn-submit" style="width: 100%; background-color:#218c74;">Create Account</button>
-                </form>
-                <div class="auth-helper-links" style="justify-content: center;">
-                    <span class="auth-link" id="backToLoginFromReg">Already registered? Log In</span>
+                <div class="form-group">
+                    <label for="loginPassword">Password</label>
+                    <input type="password" id="loginPassword" placeholder="••••••••">
+                    <span class="password-toggle" id="togglePassword">SHOW</span>
+                    <div class="error-msg" id="loginPasswordError">Password must be at least 6 characters.</div>
                 </div>
-            </div>
-
-            <!-- PANEL C: FORGOT PASSWORD WORKFLOW MODULE -->
-            <div id="forgotPanel" class="auth-panel">
-                <div class="login-card-header">
-                    <h2>RECOVER<span>PASS</span></h2>
-                    <p>Enter your email to request a secure password shift token link</p>
-                </div>
-                <form id="forgotForm" novalidate>
-                    <div class="form-group">
-                        <label for="forgotEmail">Registered Email Coordinate</label>
-                        <input type="email" id="forgotEmail" placeholder="yourname@domain.com">
-                        <div class="error-msg" id="forgotEmailError">Email coordinate target not found in records.</div>
-                    </div>
-                    <button type="submit" class="btn-submit" style="width: 100%; background-color: #f1c40f; color:#0b0f19;">Send Password Update Link</button>
-                </form>
-                
-                <!-- Simulated Received Update Email Link box (Prepopulated on verification) -->
-                <div id="simulatedEmailBox" style="margin-top:20px; background: rgba(255,255,255,0.03); border:1px dashed rgba(255,255,255,0.1); padding:15px; border-radius:6px; display:none;">
-                    <p style="font-size:0.8rem; color:var(--text-muted); text-align:center; margin-bottom:10px;">📨 [Simulated System Email Box Check]</p>
-                    <button id="simulatedLinkBtn" class="btn-submit" style="width:100%; padding:8px; font-size:0.85rem; background: var(--text-main); color: var(--bg-dark);">Click simulated link to clear password</button>
-                </div>
-
-                <div class="auth-helper-links" style="justify-content: center; margin-top:15px;">
-                    <span class="auth-link" id="backToLoginFromForgot">Return to Sign In Screen</span>
-                </div>
-            </div>
-
-            <!-- PANEL D: SECURE CHANGE PASSWORD CONFIGURATOR -->
-            <div id="resetPasswordPanel" class="auth-panel">
-                <div class="login-card-header">
-                    <h2>RESET<span>PASSWORD</span></h2>
-                    <p>Establish a fresh entry password key update</p>
-                </div>
-                <form id="resetPasswordForm" novalidate>
-                    <div class="form-group">
-                        <label for="newPassword">New Account Password</label>
-                        <input type="password" id="newPassword" placeholder="••••••••">
-                        <div class="error-msg" id="newPasswordError">Password must be at least 6 characters long.</div>
-                    </div>
-                    <button type="submit" class="btn-submit" style="width: 100%; background-color: var(--accent);">Commit New Password</button>
-                </form>
-            </div>
-
+                <button type="submit" class="btn-submit" style="width: 100%;">Secure Log In</button>
+            </form>
         </div>
     </div>
 
@@ -469,7 +374,7 @@
                 <p>Explore specialized tracks built to deliver definitive performance goals.</p>
             </div>
             <div class="programs-grid">
-                <div class="program-card"><div class="program-icon">🏋️‍♂️</div>  <h3>Strength & Iron</h3><p>Heavy compound loading, powerlifting tracks, and progressive mass building dynamics.</p></div>
+                <div class="program-card"><div class="program-icon">🏋️‍♂️</div><h3>Strength & Iron</h3><p>Heavy compound loading, powerlifting tracks, and progressive mass building dynamics.</p></div>
                 <div class="program-card"><div class="program-icon">⚡</div><h3>HIIT Circuit</h3><p>High intensity metabolic conditioning setups built to torch fat and optimize stamina.</p></div>
                 <div class="program-card"><div class="program-icon">🧘</div><h3>Yoga Mobility</h3><p>Deep core structural stability alignment, fluid stretching, and dynamic recovery.</p></div>
             </div>
@@ -481,16 +386,20 @@
                 <h2>Trainer Assignments Board</h2>
                 <p>Live active tasks pushed directly from management terminals.</p>
             </div>
-            <div class="tasks-board-grid" id="userTasksBoardGrid"></div>
+            <div class="tasks-board-grid" id="userTasksBoardGrid">
+                <!-- Loaded via data state array -->
+            </div>
         </section>
 
         <!-- DYNAMIC APPOINTED TRAINERS ROSTER -->
         <section id="trainers" class="container">
             <div class="section-header">
                 <h2>Appointed Coaches</h2>
-                <p>Train alongside elite certified professionals assigned to your track.</p>
+                <p>Train alongside elite certified professionals assigned to your structural layout track.</p>
             </div>
-            <div class="trainers-grid" id="userTrainersDisplayGrid"></div>
+            <div class="trainers-grid" id="userTrainersDisplayGrid">
+                <!-- Loaded dynamically from shared local database engine -->
+            </div>
         </section>
 
         <!-- PLANS -->
@@ -546,50 +455,20 @@
         <footer><p>&copy; 2026 IRON ZONE Fitness.</p></footer>
     </div>
 
-    <!-- CODE CONTROLLER LAYOUT ACTIONS -->
+    <!-- PIPELINE ROUTING STATE CONTROL STRIPTS -->
     <script>
-        // --- 1. LOCAL DATA PERSISTENCE INITIALIZATION ---
-        // Establish an internal local directory ledger for custom signed-up credentials
-        let userAccountsDirectory = JSON.parse(localStorage.getItem('dbUserAccounts')) || [
-            { email: "user@test.com", password: "123456", name: "Default User" }
-        ];
-        localStorage.setItem('dbUserAccounts', JSON.stringify(userAccountsDirectory));
-
-        // Core UI handles cache
         const authGateway = document.getElementById('authGateway');
         const mainAppInterface = document.getElementById('main-app-interface');
+        const loginForm = document.getElementById('loginForm');
+        const logoutBtn = document.getElementById('logoutBtn');
         const passwordInput = document.getElementById('loginPassword');
-        const togglePassword = document.getElementById('togglePassword');
-
-        // Panel Switch Handles
-        const loginPanel = document.getElementById('loginPanel');
-        const registerPanel = document.getElementById('registerPanel');
-        const forgotPanel = document.getElementById('forgotPanel');
-        const resetPasswordPanel = document.getElementById('resetPasswordPanel');
-
-        let transientRecoveryEmailTarget = ""; // Track context during password shift workflows
 
         if (localStorage.getItem('gymUserAuthenticated') === 'true') {
-            authGateway.classList.add('authenticated');
-            mainAppInterface.classList.add('visible');
+            authGateway.classList.add('authenticated'); mainAppInterface.classList.add('visible');
             renderSynchronizedFeeds();
         }
 
-        // --- 2. AUTH CARD SWITCHER CONTROLLER LOGIC ---
-        function switchPanel(targetPanel) {
-            document.querySelectorAll('.auth-panel').forEach(p => p.classList.remove('active-panel'));
-            targetPanel.classList.add('active-panel');
-        }
-
-        document.getElementById('goToRegisterBtn').addEventListener('click', () => switchPanel(registerPanel));
-        document.getElementById('goToForgotBtn').addEventListener('click', () => switchPanel(forgotPanel));
-        document.getElementById('backToLoginFromReg').addEventListener('click', () => switchPanel(loginPanel));
-        document.getElementById('backToLoginFromForgot').addEventListener('click', () => switchPanel(loginPanel));
-
-        // --- 3. CORE SUBMISSION HANDLING OPERATIONS ---
-
-        // Verification & Sign In Action Pipeline
-        document.getElementById('loginForm').addEventListener('submit', (e) => {
+        loginForm.addEventListener('submit', (e) => {
             e.preventDefault();
             const email = document.getElementById('loginEmail').value.trim();
             const pass = passwordInput.value.trim();
@@ -598,109 +477,15 @@
                 window.location.href = 'admin.1.html'; return;
             }
 
-            // Fetch directories accounts cache arrays lookup
-            let accounts = JSON.parse(localStorage.getItem('dbUserAccounts')) || [];
-            let verifiedUser = accounts.find(acc => acc.email === email && acc.password === pass);
-
-            if(verifiedUser) {
+            if(email === 'user@test.com' && pass === '123456') {
                 localStorage.setItem('gymUserAuthenticated', 'true');
-                captureCustomerToAdminDB(verifiedUser.name, email, "Standard Pass", "Session Access");
+                captureCustomerToAdminDB("Authenticated Member", email, "Standard Pass", "Session Access");
                 window.location.reload();
-            } else {
-                alert("⛔ Error: Unauthorized configuration profile context matching records fail.");
-            }
+            } else { alert("Unauthorized Account Coordinates."); }
         });
 
-        // Unique Account Registration Pipeline Action
-        document.getElementById('registerForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const name = document.getElementById('regName').value.trim();
-            const email = document.getElementById('regEmail').value.trim();
-            const pass = document.getElementById('regPassword').value.trim();
-            
-            let isRegValid = true;
-            let accounts = JSON.parse(localStorage.getItem('dbUserAccounts')) || [];
+        logoutBtn.addEventListener('click', () => { localStorage.removeItem('gymUserAuthenticated'); window.location.reload(); });
 
-            // Validation fields checks
-            if(!name) { document.getElementById('regNameError').style.display='block'; isRegValid=false; } 
-            else { document.getElementById('regNameError').style.display='none'; }
-
-            // UNIQUE EMAIL LEAP RULE DETECTOR CHECKS
-            if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || accounts.some(acc => acc.email === email) || email === 'admin@test.com') {
-                document.getElementById('regEmailError').style.display = 'block';
-                isRegValid = false;
-            } else {
-                document.getElementById('regEmailError').style.display = 'none';
-            }
-
-            if(pass.length < 6) {
-                document.getElementById('regPasswordError').style.display = 'block';
-                isRegValid = false;
-            } else {
-                document.getElementById('regPasswordError').style.display = 'none';
-            }
-
-            if(isRegValid) {
-                accounts.push({ email, password: pass, name });
-                localStorage.setItem('dbUserAccounts', JSON.stringify(accounts));
-                alert("🎉 Registration Complete! Your account has been securely logged. Signing in now...");
-                
-                localStorage.setItem('gymUserAuthenticated', 'true');
-                captureCustomerToAdminDB(name, email, "Standard Pass", "New Register");
-                window.location.reload();
-            }
-        });
-
-        // Forgot Password Lookup Action Form
-        document.getElementById('forgotForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const email = document.getElementById('forgotEmail').value.trim();
-            let accounts = JSON.parse(localStorage.getItem('dbUserAccounts')) || [];
-            
-            if(accounts.some(acc => acc.email === email)) {
-                document.getElementById('forgotEmailError').style.display = 'none';
-                transientRecoveryEmailTarget = email; // Store target location temporarily
-                
-                // Mount a simulated email transmission window block alert
-                document.getElementById('simulatedEmailBox').style.display = 'block';
-                alert("📩 Secure key request approved! A simulated password update token has been delivered to your simulated email sandbox box wrapper below.");
-            } else {
-                document.getElementById('forgotEmailError').style.display = 'block';
-            }
-        });
-
-        // Intercept simulated email body trigger click button link pass metrics
-        document.getElementById('simulatedLinkBtn').addEventListener('click', () => {
-            document.getElementById('simulatedEmailBox').style.display = 'none';
-            document.getElementById('forgotForm').reset();
-            switchPanel(resetPasswordPanel); // Route directly onto configuration module layout panel C
-        });
-
-        // Commit Password Reset Form Action Pipeline
-        document.getElementById('resetPasswordForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const newPass = document.getElementById('newPassword').value.trim();
-
-            if(newPass.length < 6) {
-                document.getElementById('newPasswordError').style.display = 'block';
-                return;
-            }
-            document.getElementById('newPasswordError').style.display = 'none';
-
-            let accounts = JSON.parse(localStorage.getItem('dbUserAccounts')) || [];
-            let targetIdx = accounts.findIndex(acc => acc.email === transientRecoveryEmailTarget);
-
-            if(targetIdx !== -1) {
-                accounts[targetIdx].password = newPass; // Override credentials cache parameters directly
-                localStorage.setItem('dbUserAccounts', JSON.stringify(accounts));
-                
-                alert("✨ Security Registry Shift Complete! Password updated safely. Returning onto login terminal.");
-                document.getElementById('resetPasswordForm').reset();
-                switchPanel(loginPanel);
-            }
-        });
-
-        // --- 4. DATA SYNCHRONIZATION PIPELINES ---
         function captureCustomerToAdminDB(name, email, plan, duration) {
             let activeDB = JSON.parse(localStorage.getItem('adminCustDB')) || [];
             if(activeDB.some(c => c.email === email && c.plan === plan)) return;
@@ -708,50 +493,49 @@
             localStorage.setItem('adminCustDB', JSON.stringify(activeDB));
         }
 
+        // DYNAMIC FEED INTERFACE REFRESH ENGINE
         function renderSynchronizedFeeds() {
+            // Render Appointed Staff Members
             const coachesGrid = document.getElementById('userTrainersDisplayGrid');
             coachesGrid.innerHTML = "";
             const staffDB = JSON.parse(localStorage.getItem('adminStaffDB')) || [
                 { id: "s1", name: "Coach Dev", role: "Head Strength Coach", email: "dev@ironzone.com", img: "https://images.unsplash.com/photo-1567013127542-490d757e51fc?q=80&w=400" }
             ];
+            
             staffDB.forEach(s => {
                 const imgUrl = s.img || "https://images.unsplash.com/photo-1548690312-e3b507d8c110?q=80&w=400";
-                coachesGrid.innerHTML += `<div class="trainer-card"><img src="${imgUrl}" class="trainer-img"><div class="trainer-info"><h3>${s.name}</h3><span>${s.role}</span></div></div>`;
+                coachesGrid.innerHTML += `
+                    <div class="trainer-card">
+                        <img src="${imgUrl}" alt="${s.name}" class="trainer-img">
+                        <div class="trainer-info"><h3>${s.name}</h3><span>${s.role}</span></div>
+                    </div>
+                `;
             });
 
+            // Render Assigned Tasks Board
             const tasksGrid = document.getElementById('userTasksBoardGrid');
             tasksGrid.innerHTML = "";
-            const tasksDB = JSON.parse(localStorage.getItem('adminTasksDB')) || [];
+            const tasksDB = JSON.parse(localStorage.getItem('adminTasksDB')) || [
+                { id: "t1", title: "Morning Progressive Overload", coach: "Coach Dev", body: "Check form alignment cues on loading blocks." }
+            ];
+
             if(tasksDB.length === 0) {
-                tasksGrid.innerHTML = `<p style="color:var(--text-muted); font-style:italic; padding:10px;">No workout directives assigned on the board today.</p>`;
+                tasksGrid.innerHTML = `<p style="color:var(--text-muted); font-style:italic;">No active workout directives assigned today.</p>`;
                 return;
             }
+
             tasksDB.forEach(t => {
-                tasksGrid.innerHTML += `<div class="task-view-card"><h4>${t.title}</h4><div class="task-assignee">Assigned By: ${t.coach}</div><p>${t.body}</p></div>`;
+                tasksGrid.innerHTML += `
+                    <div class="task-view-card">
+                        <h4>${t.title}</h4>
+                        <div class="task-assignee">Assigned By: ${t.coach}</div>
+                        <p>${t.body}</p>
+                    </div>
+                `;
             });
         }
 
-        logoutBtn.addEventListener('click', () => { localStorage.removeItem('gymUserAuthenticated'); window.location.reload(); });
-        togglePassword.addEventListener('click', () => {
-            passwordInput.type = passwordInput.type === 'password' ? 'text' : 'password';
-            togglePassword.textContent = passwordInput.type === 'password' ? 'SHOW' : 'HIDE';
-        });
-
-        // Imagery Modals Lightbox setup
-        const galleryItems = document.querySelectorAll('.gallery-item');
-        const lightbox = document.getElementById('lightboxModal');
-        galleryItems.forEach(item => {
-            item.addEventListener('click', () => {
-                lightbox.style.display = 'flex';
-                document.getElementById('lightboxImage').src = item.querySelector('img').src;
-                document.getElementById('lightboxCaption').textContent = item.querySelector('.gallery-overlay span').textContent;
-            });
-        });
-        const closeLightbox = () => lightbox.style.display = 'none';
-        document.getElementById('closeLightboxBtn').addEventListener('click', closeLightbox);
-        window.addEventListener('click', (e) => { if (e.target === lightbox) closeLightbox(); });
-
-        // General trial uploader submissions captures
+        // Form handlers & pricing buttons
         document.getElementById('trialForm').addEventListener('submit', (e) => {
             e.preventDefault();
             const name = document.getElementById('fullName').value.trim();
@@ -759,15 +543,15 @@
             const track = document.getElementById('selectedTrack').value;
             if(!name || !email) return;
             captureCustomerToAdminDB(name, email, track + " Free Trial", "1 Day Pass");
-            alert("🎯 Success! Pass details pushed onto admin panel registry.");
+            alert("🎯 Success! Pass details pushed onto admin panels.");
             document.getElementById('trialForm').reset();
         });
 
         document.querySelectorAll('.buy-plan-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const card = e.target.closest('.price-card');
-                captureCustomerToAdminDB("Web Inquirer", "inquirer_" + Math.floor(Math.random() * 100) + "@test.com", card.getAttribute('data-plan'), card.getAttribute('data-duration'));
-                alert(`💳 Choice selection captured directly to storage keys.`);
+                captureCustomerToAdminDB("Web Inquirer", "inquirer@test.com", card.getAttribute('data-plan'), card.getAttribute('data-duration'));
+                alert(`💳 Added selection into Admin Ledger logs.`);
             });
         });
     </script>
